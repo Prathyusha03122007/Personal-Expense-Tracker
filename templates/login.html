@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5">
+        <div class="glass-card p-5">
+            <h2 class="text-center fw-bold mb-4">Welcome Back</h2>
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Email address</label>
+                    <input type="email" name="email" class="form-control form-control-lg" required placeholder="name@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Password</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="loginPassword" class="form-control form-control-lg border-end-0" required placeholder="Enter your password">
+                        <button class="btn btn-outline-secondary border-start-0" type="button" id="togglePassword" style="background-color: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1);">
+                            <i class="fa-solid fa-eye text-secondary" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">Log In</button>
+                <div class="text-center text-secondary">
+                    Don't have an account? <a href="{{ url_for('signup') }}" class="text-accent text-decoration-none text-gradient fw-bold">Sign Up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function (e) {
+        const password = document.getElementById('loginPassword');
+        const icon = document.getElementById('toggleIcon');
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+</script>
+{% endblock %}

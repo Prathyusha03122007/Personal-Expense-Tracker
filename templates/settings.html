@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <!-- Left Column: Form -->
+    <div class="col-md-5 mb-4">
+        <div class="glass-card">
+            <h4 class="mb-2 fw-bold"><i class="fa-solid fa-bullseye text-accent me-2"></i>Set Monthly Budget</h4>
+            <p class="text-secondary mb-4 text-sm">Define your spending limits per category. You can type any new category directly below.</p>
+            
+            <form method="POST" action="{{ url_for('settings') }}">
+                <div class="mb-3">
+                    <label class="form-label text-secondary fw-semibold">Target Month</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: rgba(255,255,255,0.1);"><i class="fa-regular fa-calendar"></i></span>
+                        <input type="month" name="month" class="form-control form-control-lg border-start-0 ps-0" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary fw-semibold">Category</label>
+                    <input type="text" name="category_name" class="form-control form-control-lg" list="categoryOptions" placeholder="e.g. Shopping, Utilities..." required>
+                    <datalist id="categoryOptions">
+                        {% for c in categories %}
+                        <option value="{{ c.name }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-secondary fw-semibold">Budget Amount (₹)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-color: rgba(255,255,255,0.1);"><i class="fa-solid fa-indian-rupee-sign"></i></span>
+                        <input type="number" step="0.01" name="amount" class="form-control form-control-lg border-start-0 ps-0" required placeholder="0.00">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm"><i class="fa-solid fa-floppy-disk me-2"></i>Save Budget</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Right Column: Table -->
+    <div class="col-md-7 mb-4">
+        <div class="glass-card h-100">
+            <h4 class="mb-4 fw-bold"><i class="fa-solid fa-list-check text-accent me-2"></i>Your Active Budgets</h4>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle" style="background: transparent;">
+                    <thead>
+                        <tr>
+                            <th class="border-bottom border-secondary text-secondary pb-3">Month</th>
+                            <th class="border-bottom border-secondary text-secondary pb-3">Category</th>
+                            <th class="border-bottom border-secondary text-secondary text-end pb-3">Amount</th>
+                            <th class="border-bottom border-secondary text-secondary text-end pb-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in budgets %}
+                        <tr>
+                            <td class="border-bottom border-secondary py-3" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <span class="badge bg-dark border border-secondary text-light px-3 py-2 rounded-pill"><i class="fa-regular fa-calendar me-2 text-secondary"></i>{{ b.month }}</span>
+                            </td>
+                            <td class="border-bottom border-secondary fw-semibold" style="border-color: rgba(255,255,255,0.05) !important;">
+                                {{ b.category.icon }} {{ b.category.name }}
+                            </td>
+                            <td class="border-bottom border-secondary text-end fw-bold text-gradient fs-5" style="border-color: rgba(255,255,255,0.05) !important;">
+                                ₹{{ "%.2f"|format(b.amount) }}
+                            </td>
+                            <td class="border-bottom border-secondary text-end" style="border-color: rgba(255,255,255,0.05) !important;">
+                                <form action="{{ url_for('delete_budget', budget_id=b.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this budget limit?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-secondary py-5 border-0">
+                                <i class="fa-solid fa-folder-open fs-1 text-muted mb-3 d-block"></i>
+                                No active budgets found.<br>Define a new budget on the left to get started!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

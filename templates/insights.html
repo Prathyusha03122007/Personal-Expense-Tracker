@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h3 class="fw-bold mb-2 mb-md-0">Insights & Trends</h3>
+            <form method="GET" class="d-flex gap-2">
+                <input type="month" name="month" class="form-control" value="{{ month_str }}" onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Category Split Pie Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card h-100">
+            <h5 class="mb-4">Spend by Category</h5>
+            <div style="position: relative; height:300px; width:100%">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Spend Line Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card h-100">
+            <h5 class="mb-4">Daily Spend Trend</h5>
+            <div style="position: relative; height:300px; width:100%">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget vs Actual Bar Chart -->
+    <div class="col-12 mb-4">
+        <div class="glass-card">
+            <h5 class="mb-4">Budget vs Actual Spend</h5>
+            <div style="position: relative; height:350px; width:100%">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Theme colors for charts
+    const chartColors = [
+        '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4'
+    ];
+    
+    // Shared chart options for dark theme
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: { color: '#f8fafc' }
+            }
+        }
+    };
+
+    // 1. Pie Chart
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: {{ pie_labels|tojson }},
+            datasets: [{
+                data: {{ pie_data|tojson }},
+                backgroundColor: chartColors,
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            ...commonOptions,
+            cutout: '70%',
+            plugins: {
+                legend: { position: 'right', labels: { color: '#f8fafc' } }
+            }
+        }
+    });
+
+    // 2. Line Chart
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: {{ line_labels|tojson }},
+            datasets: [{
+                label: 'Daily Spend (₹)',
+                data: {{ line_data|tojson }},
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+
+    // 3. Bar Chart (Budget vs Actual)
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ bar_labels|tojson }},
+            datasets: [
+                {
+                    label: 'Budget (₹)',
+                    data: {{ bar_budget|tojson }},
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'Actual Spend (₹)',
+                    data: {{ bar_actual|tojson }},
+                    backgroundColor: '#f43f5e',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %}
